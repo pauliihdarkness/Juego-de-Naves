@@ -169,8 +169,8 @@ class Game {
         this.items = [];
 
         this.aiSystem = new AISystem();
-        this.particles = new ParticleSystem();
-        this.thrustParticles = new ParticleSystem();
+        this.particles = new ParticleSystem(300);
+        this.thrustParticles = new ParticleSystem(200);
         this.camera = new Camera(this.width, this.height);
 
         // Efectos de pantalla
@@ -198,6 +198,19 @@ class Game {
         this.soundEnabled = true;
         this.musicEnabled = true;
         this.difficulty = 'normal';
+
+        // Timers para optimización
+        this.hudUpdateTimer = 0;
+
+        // Monitoreo de FPS
+        this.frameCount = 0;
+        this.fps = 60;
+        this.fpsTimer = 0;
+
+        // Cachear gradientes para rendimiento
+        this.backgroundGradient = this.ctx.createLinearGradient(0, this.height - 150, 0, this.height);
+        this.backgroundGradient.addColorStop(0, 'rgba(255, 0, 150, 0)');
+        this.backgroundGradient.addColorStop(1, 'rgba(255, 0, 150, 0.05)');
 
         // Navegación de menú con gamepad
         this.menuInteractives = [];
@@ -746,6 +759,15 @@ class Game {
         this.lastFrameTime = now;
         this.time += this.deltaTime;
 
+        // Monitoreo de FPS
+        this.frameCount++;
+        this.fpsTimer += this.deltaTime;
+        if (this.fpsTimer >= 1) {
+            this.fps = Math.round(this.frameCount / this.fpsTimer);
+            this.frameCount = 0;
+            this.fpsTimer = 0;
+        }
+
         // Actualizar entrada de gamepads
         this.input.pollGamepads();
 
@@ -826,7 +848,7 @@ class Game {
         });
 
         // Actualizar items
-        this.items = this.items.filter(item => !item.isDead());
+        this.items = this.items.filter(item => !item.isDead()).slice(0, 10); // Limitar a 10 items
         this.items.forEach(item => item.update(this.deltaTime));
 
         // Recoger items
@@ -985,7 +1007,7 @@ class Game {
         this.thrustParticles.update(this.deltaTime);
         this.particles.update(this.deltaTime);
 
-        // Limpiar balas
+        // Limpiar balas manteniendo su trayectoria completa
         this.players.forEach(p => {
             p.bullets = p.bullets.filter(b => {
                 return !b.hit &&
@@ -1014,8 +1036,12 @@ class Game {
             this.endGame();
         }
 
-        // Actualizar HUD
-        this.updateHUD();
+        // Actualizar HUD cada 0.1 segundos para mejorar rendimiento
+        this.hudUpdateTimer += this.deltaTime;
+        if (this.hudUpdateTimer >= 0.1) {
+            this.updateHUD();
+            this.hudUpdateTimer = 0;
+        }
     }
 
     updateHUD() {
@@ -1051,6 +1077,12 @@ class Game {
             // Efecto de vida crítica
             if (p2Health < 30) player2Health.classList.add('low-health');
             else player2Health.classList.remove('low-health');
+        }
+
+        // Actualizar FPS
+        const fpsDisplay = document.getElementById('fps-display');
+        if (fpsDisplay) {
+            fpsDisplay.textContent = 'FPS: ' + this.fps;
         }
     }
 
@@ -1160,10 +1192,7 @@ class Game {
         this.ctx.stroke();
 
         // Un gradiente desde abajo para simular "Horizonte"
-        const gradient = this.ctx.createLinearGradient(0, this.height - 150, 0, this.height);
-        gradient.addColorStop(0, 'rgba(255, 0, 150, 0)');
-        gradient.addColorStop(1, 'rgba(255, 0, 150, 0.05)');
-        this.ctx.fillStyle = gradient;
+        this.ctx.fillStyle = this.backgroundGradient;
         this.ctx.fillRect(0, this.height - 150, this.width, 150);
 
         this.ctx.restore();

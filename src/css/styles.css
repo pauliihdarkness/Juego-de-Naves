@@ -78,6 +78,16 @@ body::before {
 #gameWrapper .level-display {
     margin-bottom: 0;
     white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+#fps-display {
+    font-size: 12px;
+    color: #00ff88;
+    font-family: 'Space Mono', monospace;
 }
 
 .game-buttons {

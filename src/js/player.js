@@ -47,6 +47,7 @@ class Player {
         this.baseFireRate = 0.1; // segundos entre disparos
         this.fireRate = this.baseFireRate;
         this.fireTimer = 0;
+        this.maxBullets = 30; // límite dinámico de balas
         
         // Armas adicionales
         this.secondaryCooldown = 3.0; // Misil (3 seg)
@@ -379,9 +380,11 @@ class Player {
         
         // Mejoras extremas para rapidFire
         if (type === 'rapidFire') {
-            this.fireRate = Math.max(0.04, this.baseFireRate * 0.45); 
+            this.fireRate = Math.max(0.04, this.baseFireRate * 0.45);
+            this.maxBullets = 60; // permitir más balas durante rapidFire
         } else if (type === 'shield') {
             this.fireRate = this.baseFireRate;
+            this.maxBullets = 30;
             this.health = Math.min(this.health + 30, this.maxHealth); // Shield recupera un trozo de vida instantáneamente
         }
     }
@@ -390,6 +393,7 @@ class Player {
         this.powerup = null;
         this.powerupTime = 0;
         this.fireRate = this.baseFireRate;
+        this.maxBullets = 30;
     }
 
     addScore(points) {

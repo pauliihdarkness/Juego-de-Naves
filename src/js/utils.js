@@ -606,8 +606,9 @@ class Particle {
  * Sistema de partículas
  */
 class ParticleSystem {
-    constructor() {
+    constructor(maxParticles = 500) {
         this.particles = [];
+        this.maxParticles = maxParticles;
     }
 
     emit(x, y, count = 10, color = '#00ff88') {
@@ -673,6 +674,10 @@ class ParticleSystem {
     update(dt) {
         this.particles = this.particles.filter(p => !p.isDead());
         this.particles.forEach(p => p.update(dt));
+        // Limitar el número de partículas para rendimiento
+        if (this.particles.length > this.maxParticles) {
+            this.particles = this.particles.slice(0, this.maxParticles);
+        }
     }
 
     draw(ctx) {
