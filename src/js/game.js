@@ -3,22 +3,57 @@
 // ===========================
 
 class PickupItem {
-    constructor(x, y, type = 'health', amount = 25, effect = 'rapidFire') {
+    constructor(x, y, type = 'health', amount = 25, effect = 'rapidFire', enemyType = null) {
         this.x = x;
         this.y = y;
         this.type = type;
         this.amount = amount;
         this.effect = effect;
+        this.enemyType = enemyType; // Tipo de enemigo que lo dejó caer
         this.radius = 14;
         this.life = 12;
         this.maxLife = 12;
         this.angle = 0;
-        if (type === 'health') {
-            this.color = '#4cff91';
-        } else if (type === 'powerup') {
-            this.color = effect === 'shield' ? '#5ad3ff' : '#5ac8ff';
+        
+        // Colores y efectos basados en tipo de item y enemigo
+        this.setVisualProperties();
+    }
+
+    setVisualProperties() {
+        // Base colors
+        if (this.type === 'health') {
+            this.color = '#4cff91'; // Verde base
+            this.radius = 14;
+        } else if (this.type === 'powerup') {
+            this.color = this.effect === 'shield' ? '#5ad3ff' : '#5ac8ff'; // Azul/Cian base
+            this.radius = 14;
         } else {
             this.color = '#ffffff';
+            this.radius = 14;
+        }
+
+        // Modificaciones basadas en tipo de enemigo
+        switch (this.enemyType) {
+            case 'boss':
+                // Items de boss: dorados, más grandes, más glow
+                this.color = this.type === 'health' ? '#ffd700' : '#ffed4e'; // Dorado
+                this.radius = 18; // Más grande
+                this.maxLife = 15; // Dura más tiempo
+                this.life = 15;
+                break;
+            case 'tank':
+                // Items de tank: naranjas, ligeramente más grandes
+                this.color = this.type === 'health' ? '#ff8c00' : '#ffa500'; // Naranja
+                this.radius = 16;
+                break;
+            case 'scout':
+                // Items de scout: cyan brillante
+                this.color = this.type === 'health' ? '#00ffff' : '#00bfff'; // Cyan
+                break;
+            case 'basic':
+                // Items básicos: colores estándar pero más pequeños
+                this.radius = 12;
+                break;
         }
     }
 
@@ -34,8 +69,9 @@ class PickupItem {
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // 1. Aura / Resplandor exterior (Glow)
-        ctx.shadowBlur = 20 * pulse;
+        // 1. Aura / Resplandor exterior (Glow) - Más intenso para bosses
+        const glowMultiplier = this.enemyType === 'boss' ? 2.5 : 1;
+        ctx.shadowBlur = 20 * pulse * glowMultiplier;
         ctx.shadowColor = this.color;
         ctx.globalAlpha = 0.4 * opacity;
         ctx.fillStyle = this.color;
@@ -227,6 +263,9 @@ class Game {
         // Hacer la instancia de juego global
         window.game = this;
 
+        // Visibilidad inicial del footer
+        this.updateFooterVisibility();
+
         // Iniciar música inicial
         this.audio.playMusic('menu');
     }
@@ -354,10 +393,10 @@ class Game {
         });
 
         document.getElementById('exitBtn').addEventListener('click', () => {
-            if (confirm('¿Seguro que quieres salir del juego?')) {
+            if (window.electronAPI && window.electronAPI.closeApp) {
+                window.electronAPI.closeApp();
+            } else {
                 window.close();
-                // Fallback para navegadores que bloquean window.close()
-                alert('Si estás en un navegador, cierra la pestaña manualmente. En el ejecutable se cerrará automáticamente.');
             }
         });
 
@@ -366,9 +405,9 @@ class Game {
             const btn = document.getElementById('fullscreenBtn');
             if (btn) {
                 if (document.fullscreenElement) {
-                    btn.textContent = '📺 SALIR DE PANTALLA COMPLETA';
+                    btn.textContent = '🪟 MODO VENTANA';
                 } else {
-                    btn.textContent = '📺 PANTALLA COMPLETA';
+                    btn.textContent = '📺 MODO PANTALLA COMPLETA';
                 }
             }
         });
@@ -654,6 +693,7 @@ class Game {
         this.audio.playMusic('game');
 
         this.spawnWave();
+        this.updateFooterVisibility();
     }
 
     goToMenu() {
@@ -674,6 +714,7 @@ class Game {
         this.audio.playMusic('menu');
 
         this.updateMenuInteractives();
+        this.updateFooterVisibility();
     }
 
     showModeSelection() {
@@ -688,6 +729,7 @@ class Game {
         document.getElementById('modeSelectionScreen').classList.remove('active');
         document.getElementById('mainMenu').classList.add('active');
         this.updateMenuInteractives();
+        this.updateFooterVisibility();
     }
 
     showInstructions() {
@@ -695,6 +737,7 @@ class Game {
         document.getElementById('mainMenu').classList.remove('active');
         document.getElementById('instructionsScreen').classList.add('active');
         this.updateMenuInteractives();
+        this.updateFooterVisibility();
     }
 
     hideInstructions() {
@@ -702,6 +745,7 @@ class Game {
         document.getElementById('instructionsScreen').classList.remove('active');
         document.getElementById('mainMenu').classList.add('active');
         this.updateMenuInteractives();
+        this.updateFooterVisibility();
     }
 
     showSettings() {
@@ -710,6 +754,7 @@ class Game {
         document.getElementById('pauseOverlay').classList.add('hidden'); // Ocultar pausa si estaba abierta
         document.getElementById('settingsScreen').classList.add('active');
         this.updateMenuInteractives();
+        this.updateFooterVisibility();
     }
 
     hideSettings() {
@@ -723,6 +768,13 @@ class Game {
         }
 
         this.updateMenuInteractives();
+        this.updateFooterVisibility();
+    }
+
+    updateFooterVisibility() {
+        const footer = document.getElementById('buttonFooter');
+        if (!footer) return;
+        footer.style.display = this.gameState === 'menu' ? 'flex' : 'none';
     }
 
     spawnWave() {
@@ -953,13 +1005,10 @@ class Game {
                             player.addScore(enemy.score); // Otorga todo el puntaje base del enemigo al destruirlo
                             this.createImpactEffect(enemy.x, enemy.y, 'explosion', enemy.color);
                             this.particles.emitShockwave(enemy.x, enemy.y, enemy.color, enemy.width * 2);
-                            if (Math.random() < 0.25) {
-                                this.items.push(new PickupItem(enemy.x, enemy.y, 'health', 30));
-                            }
-                            if (Math.random() < 0.12) {
-                                const effect = Math.random() < 0.55 ? 'rapidFire' : 'shield';
-                                this.items.push(new PickupItem(enemy.x, enemy.y, 'powerup', 8, effect));
-                            }
+                            
+                            // Sistema de drops basado en tipo de enemigo
+                            this.spawnEnemyDrops(enemy);
+                            
                             this.audio.playSound('explosion');
                         }
                     }
@@ -1202,6 +1251,42 @@ class Game {
         this.update();
         this.draw();
         requestAnimationFrame(() => this.loop());
+    }
+
+    // Sistema de drops basado en tipo de enemigo
+    spawnEnemyDrops(enemy) {
+        switch (enemy.type) {
+            case 'basic':
+                // Enemigos básicos: baja chance de health
+                if (Math.random() < 0.15) {
+                    this.items.push(new PickupItem(enemy.x, enemy.y, 'health', 25, null, 'basic'));
+                }
+                break;
+            case 'scout':
+                // Scouts: chance media de powerup
+                if (Math.random() < 0.20) {
+                    const effect = Math.random() < 0.6 ? 'rapidFire' : 'shield';
+                    this.items.push(new PickupItem(enemy.x, enemy.y, 'powerup', 8, effect, 'scout'));
+                }
+                break;
+            case 'tank':
+                // Tanks: alta chance de health, baja de powerup
+                if (Math.random() < 0.35) {
+                    this.items.push(new PickupItem(enemy.x, enemy.y, 'health', 40, null, 'tank'));
+                } else if (Math.random() < 0.10) {
+                    this.items.push(new PickupItem(enemy.x, enemy.y, 'powerup', 10, 'shield', 'tank'));
+                }
+                break;
+            case 'boss':
+                // Bosses: siempre dejan algo valioso
+                if (Math.random() < 0.8) {
+                    const effect = Math.random() < 0.5 ? 'rapidFire' : 'shield';
+                    this.items.push(new PickupItem(enemy.x, enemy.y, 'powerup', 15, effect, 'boss'));
+                } else {
+                    this.items.push(new PickupItem(enemy.x, enemy.y, 'health', 50, null, 'boss'));
+                }
+                break;
+        }
     }
 }
 

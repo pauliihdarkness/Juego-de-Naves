@@ -3,11 +3,12 @@
 // ===========================
 
 class Enemy {
-    constructor(x, y, type = 'basic', level = 1) {
+    constructor(x, y, type = 'basic', level = 1, colorVariant = null) {
         this.x = x;
         this.y = y;
         this.type = type;
         this.level = level;
+        this.colorVariant = colorVariant; // Variación de color
         this.vx = 0;
         this.vy = 0;
         this.health = 20;
@@ -46,6 +47,21 @@ class Enemy {
         const levelScale = 1 + (this.level - 1) * 0.15;
         const finalScale = diffMultiplier * levelScale;
 
+        // Variaciones de color por tipo
+        const colorVariants = {
+            basic: ['#00ff00', '#32cd32', '#00aa00', '#228b22', '#006400'], // Verdes
+            scout: ['#00ffff', '#00bfff', '#1e90ff', '#4169e1', '#0000ff'], // Cyans y azules
+            tank: ['#ff6600', '#ff8c00', '#ffa500', '#ff4500', '#dc143c'], // Naranjas y rojos
+            boss: ['#ff00ff', '#ff1493', '#da70d6', '#ba55d3', '#9932cc']  // Magentas y púrpuras
+        };
+
+        // Seleccionar variación de color
+        const variants = colorVariants[this.type] || ['#ffffff'];
+        if (this.colorVariant === null) {
+            this.colorVariant = Math.floor(Math.random() * variants.length);
+        }
+        const selectedColor = variants[this.colorVariant] || variants[0];
+
         switch (this.type) {
             case 'basic':
                 this.width = 25;
@@ -54,7 +70,8 @@ class Enemy {
                 this.health = 20 * finalScale;
                 this.maxHealth = this.health;
                 this.score = 50;
-                this.color = '#00ff00';
+                this.color = selectedColor;
+                this.accentColor = this.adjustBrightness(selectedColor, -0.3);
                 this.fireRate = 2 / (1 + (this.level - 1) * 0.08); // Dispara más rápido en niveles altos
                 break;
             case 'scout':
@@ -64,7 +81,8 @@ class Enemy {
                 this.health = 15 * finalScale;
                 this.maxHealth = this.health;
                 this.score = 75;
-                this.color = '#00ffff';
+                this.color = selectedColor;
+                this.accentColor = this.adjustBrightness(selectedColor, -0.3);
                 this.fireRate = 1.5 / (1 + (this.level - 1) * 0.1);
                 this.detectionRange = 400;
                 break;
@@ -75,7 +93,8 @@ class Enemy {
                 this.health = 60 * finalScale;
                 this.maxHealth = this.health;
                 this.score = 150;
-                this.color = '#ff6600';
+                this.color = selectedColor;
+                this.accentColor = this.adjustBrightness(selectedColor, -0.3);
                 this.fireRate = 0.8 / (1 + (this.level - 1) * 0.05);
                 this.attackRange = 250;
                 break;
@@ -86,7 +105,8 @@ class Enemy {
                 this.health = 250 * finalScale * 1.5; // El boss escala más fuerte
                 this.maxHealth = this.health;
                 this.score = 500;
-                this.color = '#ff00ff';
+                this.color = selectedColor;
+                this.accentColor = this.adjustBrightness(selectedColor, -0.3);
                 this.fireRate = 0.5 / (1 + (this.level - 1) * 0.12);
                 this.attackRange = 400;
                 this.detectionRange = 1200;
@@ -530,6 +550,22 @@ class Enemy {
 
     getHealthPercentage() {
         return (this.health / this.maxHealth) * 100;
+    }
+
+    // Método para ajustar el brillo de un color hex
+    adjustBrightness(hex, factor) {
+        // Convertir hex a RGB
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+
+        // Ajustar brillo
+        const newR = Math.max(0, Math.min(255, Math.round(r * (1 + factor))));
+        const newG = Math.max(0, Math.min(255, Math.round(g * (1 + factor))));
+        const newB = Math.max(0, Math.min(255, Math.round(b * (1 + factor))));
+
+        // Convertir de vuelta a hex
+        return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
     }
 }
 

@@ -13,6 +13,7 @@ Un emocionante videojuego tipo **shoot'em up** arcade con una estética retro-fu
 - **🔥 Dificultad Escalable**: Desde el modo "Fácil" para principiantes hasta el modo "PESADILLA" para expertos.
 - **💾 Persistencia de Datos**: Tus ajustes y el Récord Global (High Score) se guardan automáticamente.
 - **📦 Listo para Ejecutable**: Incluye botón de salida y optimizaciones para ser convertido en aplicación nativa (.exe).
+- **🧠 Interfaz de Juego Pulida**: Se deshabilita la selección de texto para evitar resaltados accidentales mientras juegas.
 
 ## 🎮 Controles
 
@@ -84,6 +85,8 @@ Puedes ajustar tu experiencia desde el menú de **Ajustes**:
 - **Optimización de Mando**: Corregidos todos los problemas de enfoque en menús y pausa.
 - **Branding**: Iconografía personalizada e interfaz de usuario refinada con efectos de cristal.
 - **Bug Fixes**: Solucionado el error de checkboxes al inicio y mejora en la lógica de retorno al menú.
+- **Interfaz limpia en partida**: La barra de leyenda de botones ahora solo se muestra en menús, no durante el juego.
+- **Cierre directo**: Eliminado el diálogo de confirmación al salir para un cierre inmediato de la aplicación.
 
 ---
 

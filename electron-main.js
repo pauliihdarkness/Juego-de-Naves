@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -8,9 +8,10 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     },
     // Pantalla completa por defecto para mejor experiencia
-    fullscreen: true,
+    fullscreen: false,
     autoHideMenuBar: true,
     backgroundColor: '#020205',
     title: "Juego de Naves - Aventura Espacial"
@@ -30,6 +31,10 @@ app.whenReady().then(() => {
       createWindow();
     }
   });
+});
+
+ipcMain.on('close-app', () => {
+  app.quit();
 });
 
 app.on('window-all-closed', () => {
