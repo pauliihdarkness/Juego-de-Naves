@@ -7,7 +7,7 @@
     "start": "electron .",
     "build": "electron-builder build --win"
   },
-  "author": "Antigravity",
+  "author": "PaulaDarkness",
   "license": "ISC",
   "devDependencies": {
     "electron": "^30.0.1",
