@@ -453,6 +453,7 @@ body::before {
             #00ff88 55%,
             #00663a 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
     z-index: 5;

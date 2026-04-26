@@ -16,10 +16,12 @@
   "build": {
     "appId": "com.juegonaves.app",
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "favicon.png"
     },
     "files": [
       "index.html",
+      "favicon.png",
       "src/**/*",
       "assets/**/*",
       "electron-main.js"
