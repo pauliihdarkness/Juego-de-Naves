@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Naves - Aventura Espacial</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="src/css/styles.css">
+</head>
+<body>
+    <div id="container">
+        <div id="gameWrapper">
+            <div class="game-controls-top">
+                <div id="p1-hud" class="player-hud" style="--theme: #ff0000; --theme-light: #ff6666; --theme-dark: #aa0000;">
+                    <div class="player-title">P1</div>
+                    <div class="score-display">
+                        <span id="player1-score">0</span>
+                    </div>
+                    <div class="player-health">
+                        <div id="player1-health" class="health-bar"></div>
+                        <span id="player1-health-text" class="health-text">100%</span>
+                    </div>
+                </div>
+
+                <div class="level-display">
+                    <span>NIVEL: <span id="level">1</span></span>
+                </div>
+
+                <div id="p2-hud" class="player-hud" style="--theme: #0088ff; --theme-light: #66b3ff; --theme-dark: #0044aa;">
+                    <div class="player-title">P2</div>
+                    <div class="score-display">
+                        <span id="player2-score">0</span>
+                    </div>
+                    <div class="player-health">
+                        <div id="player2-health" class="health-bar"></div>
+                        <span id="player2-health-text" class="health-text">100%</span>
+                    </div>
+                </div>
+
+                <div class="game-buttons">
+                    <button id="pauseBtn" class="menu-btn small">⏸️</button>
+                    <button id="hudMenuBtn" class="menu-btn small">🏠</button>
+                </div>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div id="pauseOverlay" class="pause-overlay hidden">
+                <div class="pause-panel menu-content">
+                    <h2 class="glitch-title" data-text="JUEGO EN PAUSA">JUEGO EN PAUSA</h2>
+                    <p>La batalla espera por ti...</p>
+                    <div class="menu-actions vertical">
+                        <button id="resumeBtn" class="menu-btn primary">▶ CONTINUAR</button>
+                        <button id="pauseSettingsBtn" class="menu-btn secondary">⚙️ AJUSTES</button>
+                        <button id="returnMenuBtn" class="menu-btn secondary">🏠 MENÚ PRINCIPAL</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú principal -->
+        <div id="mainMenu" class="menu active">
+            <div class="menu-content main-hero">
+                <div class="version-tag">ALPHA v1.2.0</div>
+                <div class="main-title-container">
+                    <div class="title-glow">NAVES</div>
+                    <h1 class="main-title" data-text="NAVES">NAVES</h1>
+                </div>
+                <div class="menu-subtitle">AVENTURA ESPACIAL COOPERATIVA</div>
+                <div class="highscore-badge">🏆 RÉCORD GLOBAL: <span id="mainHighScore">0</span></div>
+                <p class="menu-description">Defiende la galaxia junto a un aliado en esta batalla épica sin fin.</p>
+                
+                <div class="menu-actions">
+                    <button id="startBtn" class="menu-btn primary">► JUGAR AHORA</button>
+                    <div class="btn-group">
+                        <button id="instructionsBtn" class="menu-btn secondary">📖 AYUDA</button>
+                        <button id="settingsBtn" class="menu-btn secondary">⚙️ AJUSTES</button>
+                    </div>
+                    <button id="exitBtn" class="menu-btn danger">✖ SALIR DEL JUEGO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Selección de Modo -->
+        <div id="modeSelectionScreen" class="menu">
+            <div class="menu-content">
+                <h2 class="glitch-title" data-text="MODO DE JUEGO">MODO DE JUEGO</h2>
+                <p class="menu-description">Selecciona el número de pilotos para esta misión:</p>
+                <div class="menu-actions vertical">
+                    <button id="mode1PBtn" class="menu-btn primary">👤 1 JUGADOR</button>
+                    <button id="mode2PBtn" class="menu-btn primary">👥 2 JUGADORES</button>
+                    <button id="backModeBtn" class="menu-btn secondary">← VOLVER</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de instrucciones -->
+        <div id="instructionsScreen" class="menu">
+            <div class="menu-content wide">
+                <h2>CÓMO JUGAR</h2>
+                <div class="instructions-grid">
+                    <div class="instr-column">
+                        <h3>🔴 JUGADOR 1</h3>
+                        <p><strong>Movimiento:</strong> <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> / <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd></p>
+                        <p><strong>Disparo:</strong> <kbd>ESPACIO</kbd> / Click Izq</p>
+                        <p><strong>Gamepad:</strong> <kbd>L-Stick</kbd> + <kbd>A</kbd> / <kbd>RT</kbd></p>
+                    </div>
+                    <div class="instr-column">
+                        <h3>🔵 JUGADOR 2</h3>
+                        <p><strong>Movimiento:</strong> <kbd>I</kbd> <kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd></p>
+                        <p><strong>Disparo:</strong> <kbd>ENTER</kbd> / Click Der</p>
+                        <p><strong>Gamepad:</strong> <kbd>L-Stick</kbd> + <kbd>A</kbd> / <kbd>RT</kbd></p>
+                    </div>
+                </div>
+                <div class="instructions-text">
+                    <h3>🚀 OBJETIVO</h3>
+                    <p>Sobrevive a las oleadas, destruye enemigos y recolecta Power-Ups para mejorar tu nave. ¡La cooperación es la clave para la victoria!</p>
+                </div>
+                <button id="backBtn" class="menu-btn">← VOLVER</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de configuración -->
+        <div id="settingsScreen" class="menu">
+            <div class="menu-content">
+                <h2>CONFIGURACIÓN</h2>
+                <div class="settings-group">
+                    <label>
+                        <input type="checkbox" id="soundCheck" checked>
+                        🔊 Efectos de Sonido
+                    </label>
+                    <label>
+                        <input type="checkbox" id="musicCheck" checked>
+                        🎵 Música de Fondo
+                    </label>
+                </div>
+                <div class="settings-group">
+                    <label>⭐ Selecciona la Dificultad:</label>
+                    <select id="difficultySelect">
+                        <option value="easy">🌱 Fácil - Perfecta para principiantes</option>
+                        <option value="normal" selected>⚡ Normal - Desafiante</option>
+                        <option value="hard">🔥 Difícil - Extremadamente desafiante</option>
+                        <option value="nightmare">💀 PESADILLA - Solo para expertos</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <button id="fullscreenBtn" class="menu-btn secondary small">📺 PANTALLA COMPLETA</button>
+                </div>
+                <button id="backSettingsBtn" class="menu-btn">← VOLVER</button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Game Over -->
+        <div id="gameOverScreen" class="menu">
+            <div class="menu-content wide">
+                <h2 id="gameOverTitle" class="glitch-title red" data-text="GAME OVER">GAME OVER</h2>
+                <div id="newRecordMsg" class="new-record-msg hidden">¡NUEVO RÉCORD ESTABLECIDO!</div>
+                <p id="gameOverMessage" class="menu-description">La misión ha terminado, pero tu leyenda perdura...</p>
+                
+                <div class="final-scores-container">
+                    <div class="score-card p1">
+                        <div class="card-label">JUGADOR 1</div>
+                        <div id="finalScore1" class="card-value">0</div>
+                        <div class="card-unit">PUNTOS</div>
+                    </div>
+                    <div class="score-card p2">
+                        <div class="card-label">JUGADOR 2</div>
+                        <div id="finalScore2" class="card-value">0</div>
+                        <div class="card-unit">PUNTOS</div>
+                    </div>
+                </div>
+
+                <div class="menu-actions">
+                    <button id="retryBtn" class="menu-btn primary">🔄 REINTENTAR</button>
+                    <button id="menuBtn" class="menu-btn secondary">🏠 MENÚ PRINCIPAL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Efectos visuales de post-procesado (Scanlines/CRT) -->
+    <div class="scanlines"></div>
+    
+    <!-- Scripts del juego -->
+    <script src="src/js/utils.js"></script>
+    <script src="src/js/ai.js"></script>
+    <script src="src/js/player.js"></script>
+    <script src="src/js/enemy.js"></script>
+    <script src="src/js/game.js"></script>
+    <script src="src/js/main.js"></script>
+</body>
+</html>

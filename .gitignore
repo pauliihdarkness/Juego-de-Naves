@@ -1,0 +1,8 @@
+/dist   
+/node_modules
+.env
+
+# Archivos de IA
+agent.md
+contexto.md
+instrucciones.md    

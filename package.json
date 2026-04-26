@@ -1,0 +1,28 @@
+{
+  "name": "juego-de-naves",
+  "version": "1.0.0",
+  "description": "Un juego de naves espacial con estilo Synthwave",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder build --win"
+  },
+  "author": "Antigravity",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.juegonaves.app",
+    "win": {
+      "target": "portable"
+    },
+    "files": [
+      "index.html",
+      "src/**/*",
+      "assets/**/*",
+      "electron-main.js"
+    ]
+  }
+}
